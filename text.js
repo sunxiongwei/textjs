@@ -1,17 +1,17 @@
 /*!
- * text.JS v0.1
+ * text.JS v0.2
  * https://github.com/mklemarczyk/textjs
  *
- * Copyright 2013 Maciej Klemarczyk
+ * Copyright (c) 2013-2014 Maciej Klemarczyk
  * Released under the MIT license
  */
 
-function linifySinglePage(mainNode, store) {
+function linifySinglePage(dataNode, store) {
 	var lS;
 	if (store != undefined) {
 		lS = store;
 	} else {
-		lS = initLinifyStore(mainNode);
+		lS = initLinifyStore(dataNode);
 	}
 
 	var po = 0;
@@ -59,12 +59,12 @@ function linifySinglePage(mainNode, store) {
 	closeLine(lS);
 }
 
-function linify(mainNode, store) {
+function linify(dataNode, store) {
 	var lS;
 	if (store != undefined) {
 		lS = store;
 	} else {
-		lS = initLinifyStore(mainNode);
+		lS = initLinifyStore(dataNode);
 	}
 
 	var po = 0;
@@ -92,8 +92,10 @@ function linify(mainNode, store) {
 	saveStats(lS);
 }
 
-
-function initLinifyStore(mainNode) {
+function initLinifyStore(dataNode, mainNode) {
+	if (mainNode == undefined) {
+		mainNode = dataNode.parentNode;
+	}
 	linifyStore = {
 		"nodeTagsArray": new Array(),
 		"openedTagsArray": new Array(),
@@ -107,15 +109,13 @@ function initLinifyStore(mainNode) {
 		"currentContainerHeight": 0,
 		"pageHeight": mainNode.clientHeight,
 		"newContainer": true,
-		"mainNode": null,
-		"dataNode": null,
+		"mainNode": mainNode,
+		"dataNode": dataNode,
 		"currentNode": null,
 		"mainContainer": null,
 		"currentContainer": null,
 		"innerContainer": null
 	};
-	linifyStore.mainNode = mainNode;
-	linifyStore.dataNode = mainNode.children[0];
 	linifyStore.currentNode = linifyStore.dataNode;
 	linifyStore.mainContainer = document.createElement("DIV");
 	linifyStore.mainNode.appendChild(linifyStore.mainContainer);

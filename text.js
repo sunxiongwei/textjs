@@ -1,12 +1,12 @@
 /*!
- * text.JS v0.2
+ * text.JS v0.3
  * https://github.com/mklemarczyk/textjs
  *
  * Copyright (c) 2013-2014 Maciej Klemarczyk
  * Released under the MIT license
  */
-
-function linifySinglePage(dataNode, store) {
+ 
+ function linifySinglePage(dataNode, store) {
 	var lS;
 	if (store != undefined) {
 		lS = store;
@@ -101,6 +101,7 @@ function initLinifyStore(dataNode, mainNode) {
 		"openedTagsArray": new Array(),
 		"attributesMapArray": new Array(),
 		"wordsArray": new Array(),
+		"continuous": true,
 		"lineOn": 0,
 		"pageOn": 0,
 		"lastContent": "",
@@ -144,6 +145,7 @@ function goUp(lS) {
 			lS.innerContainer = lS.innerContainer.parentNode;
 			if (tagName == "DIV" || tagName == "P") {
 				lS.newContainer = true;
+				lS.continuous = false;
 			}
 		}
 		lS.currentNode = lS.currentNode.parentNode;
@@ -173,6 +175,7 @@ function goDown(lS) {
 			if (tagName == "BR") {
 				lS.currentNode.setAttribute("data-if", 1);
 				lS.newContainer = true;
+				lS.continuous = false;
 				lS.currentNode = lS.currentNode.parentNode;
 			}
 			if (tagName == "HR") {
@@ -181,6 +184,9 @@ function goDown(lS) {
 			}
 			if (tagName == "DIV" || tagName == "P" || tagName == "H1" || tagName == "H2" || tagName == "H3" || tagName == "H4" || tagName == "H5" || tagName == "H6") {
 				lS.newContainer = true;
+				if (lS.currentContainer.textContent.length > 0) {
+					lS.continuous = false;
+				}
 			}
 		}
 	}
@@ -190,6 +196,7 @@ function initializeLine(linifyStore) {
 	linifyStore.currentContainer = linifyStore.innerContainer = document.createElement("DIV");
 	linifyStore.innerContainer.classList.add("line");
 	linifyStore.innerContainer.classList.add("line-" + linifyStore.lineOn);
+	linifyStore.innerContainer.classList.add("continuous");
 	linifyStore.lineOn++;
 	linifyStore.mainContainer.appendChild(linifyStore.currentContainer);
 	linifyStore.openedTagsArray = new Array();
@@ -230,6 +237,10 @@ function closeLine(linifyStore) {
 			linifyStore.currentPageHeight += linifyStore.currentContainerHeight;
 		}
 		linifyStore.currentContainer.classList.add("page-" + linifyStore.pageOn);
+		if (linifyStore.continuous == false) {
+			linifyStore.currentContainer.classList.remove("continuous");
+			linifyStore.continuous = true;
+		}
 	}
 }
 
@@ -243,6 +254,7 @@ function insertWords(linifyStore) {
 		}
 		if (currentLineHeight > linifyStore.currentLineHeight * 1.3) {
 			restoreInnerState(linifyStore);
+			linifyStore.continuous = true;
 			closeLine(linifyStore);
 			newLine(linifyStore);
 			insertWord(linifyStore, linifyStore.wordsArray[i]);
